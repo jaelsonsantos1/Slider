@@ -88,62 +88,58 @@
 
 
     <script>
-      let imagens;
+      fetchData();
+
+      const slideImage = document.querySelector("#imageSlider");
+      const numPage = document.querySelector("#numPag");
+      const textPag = document.querySelector("#textPag");
+
+      let imagens = [];
+      let currentImageIndex = 0;
+      let totalImages = 0;
 
       // Trabalhe nessa função
       const btnReload = document.querySelector("#btn_reload");
       btnReload.addEventListener("click", () => {
-        alert("Carregado!");
+        fetchData();
+        alert("Imagens recarregadas!"); // Adicione um alerta para informar quando as imagens são recarregadas
       });
 
       function fetchData() {
         return fetch("/imagens")
           .then((response) => response.json())
           .then((data) => {
-            imagens = data;
+            imagens = data.map((imagem) => imagem.webContentLink); // Atualize a lista de imagens
+            totalImages = imagens.length; // Atualize o total de imagens
+            numPag.textContent = totalImages; // Atualize o número total de páginas
+            currentImageIndex = 0; // Reinicie o índice da imagem atual
+            showNextImage(); // Exiba a próxima imagem após a atualização
           })
           .catch((error) => {
             console.error("Erro ao buscar a lista de imagens:", error);
           });
       }
 
-      fetchData().then(() => {
-        // Slider de imagens
-
-        const slideImage = document.querySelector("#imageSlider");
-        const numPage = document.querySelector("#numPag");
-
-        imagens = imagens.map((imagem) => imagem.webContentLink);
-
-        let currentImageIndex = 0;
-        let totalImages = imagens.length;
-
-        function resetImages() {
-          slideImage.style.opacity = 0;
-        }
-
-        function showNextImage() {
-          resetImages();
-          
-          let srcImg = imagens[currentImageIndex];
-          
-          currentImageIndex = (currentImageIndex + 1) % totalImages;
-          console.log(currentImageIndex);
-
-          slideImage.setAttribute("src", srcImg);
-          slideImage.style.opacity = 1;
-
-          textPag.textContent = currentImageIndex;
+      function resetImages() {
+        slideImage.style.opacity = 0;
       }
 
-      numPag.textContent = totalImages;
-      showNextImage();
+      // Função para mostrar a próxima imagem no slider
+      function showNextImage() {
+        resetImages();
+        
+        let srcImg = imagens[currentImageIndex];
+        
+        slideImage.setAttribute("src", srcImg);
+        slideImage.style.opacity = 1;
+
+        textPag.textContent = currentImageIndex + 1; // Atualize o número da página atual
+        currentImageIndex = (currentImageIndex + 1) % totalImages; // Atualize o índice da imagem atual
+      }
 
       // Agendar a exibição das próximas imagens
-      setInterval(
-        showNextImage,
-        3000
-      )});
+      setInterval(showNextImage, 3000);
+
     </script>
   </body>
 </html>
